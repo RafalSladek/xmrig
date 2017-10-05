@@ -24,11 +24,11 @@ build_script:
   - msbuild xmrig.sln /p:Configuration=Release
 
 test_script:
-  - cd %clone_folder%
-  - copy %clone_folder%\src\config.json .
-  - tree %clone_folder% /f
+  - cd c:\xmrig\build\Release
+  - tree  /f
+  - copy c:\xmrig\src\config.json .
   
 artifacts:
-  - path: build\Release
+  - path: c:\xmrig\build\Release
     name: xmrig-cpu-win
 #  - xmrig.exe
