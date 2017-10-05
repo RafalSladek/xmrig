@@ -9,6 +9,7 @@ clone_folder: c:\xmrig
 
 install:
   - if not exist "c:\xmrig-dep" (mkdir c:\xmrig-dep & curl -sL https://github.com/xmrig/xmrig-deps/releases/download/v2/xmrig-deps-v2.zip -o xmrig-deps-v2.zip & 7z x xmrig-deps-v2.zip -o"c:\xmrig-dep" -y)
+  - tree c:\xmrig-dep /f
 cache:
     - c:\xmrig-dep
 build_script:
@@ -16,7 +17,7 @@ build_script:
   - cd c:\xmrig
   - mkdir build
   - cd build
-  - cmake .. -G "Visual Studio 15 2017 Win64" -DUV_INCLUDE_DIR=c:\xmrig-dep\libuv\include -DUV_LIBRARY=c:\xmrig-dep\libuv\Release\lib\libuv.lib
+  - cmake .. -G "Visual Studio 15 2017 Win64" -DUV_INCLUDE_DIR=c:\xmrig-dep\msvc2017\libuv\%platform%\include -DUV_LIBRARY=c:\xmrig-dep\msvc2017\libuv\%platform%\lib\libuv.lib
   - msbuild xmrig.sln /p:Configuration=Release
 
 test_script:
