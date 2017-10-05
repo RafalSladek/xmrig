@@ -1,6 +1,9 @@
 # image
 image: Visual Studio 2017
 
+# version
+version: 1.0.{build}-{branch}
+
 # build platform
 platform: x64
 
@@ -14,18 +17,18 @@ cache:
     - c:\xmrig-dep
 build_script:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsMSBuildCmd.bat"
-  - cd c:\xmrig
+  - cd %clone_folder%
   - mkdir build
   - cd build
   - cmake .. -G "Visual Studio 15 2017 Win64" -DUV_INCLUDE_DIR=c:\xmrig-dep\msvc2017\libuv\%platform%\include -DUV_LIBRARY=c:\xmrig-dep\msvc2017\libuv\%platform%\lib\libuv.lib
   - msbuild xmrig.sln /p:Configuration=Release
 
 test_script:
-  - cd c:\xmrig\
+  - cd %clone_folder%
   #- copy ..\..\..\src\config.json .
-  - tree /f
+  - tree %clone_folder% /f
   
 artifacts:
-  - path: build\bin\Release
+  - path: build\Release
     name: xmrig-cpu-win
 #  - xmrig.exe
