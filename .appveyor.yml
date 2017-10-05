@@ -21,8 +21,8 @@ build_script:
   - msbuild xmrig.sln /p:Configuration=Release
 
 test_script:
-  - cd c:\xmrig\build\bin\Release
-  - copy ..\..\..\src\config.json .
+  - cd c:\xmrig\
+  #- copy ..\..\..\src\config.json .
   - tree /f
   
 artifacts:
