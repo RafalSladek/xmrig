@@ -1,0 +1,31 @@
+# image
+image: Visual Studio 2017
+
+# build platform
+platform: x64
+
+# clone directory
+clone_folder: c:\xmrig
+
+install:
+  - if not exist "c:\xmrig-dep" (mkdir c:\xmrig-dep & curl -sL https://github.com/fireice-uk/xmr-stak-dep/releases/download/v1/xmr-stak-dep.zip -o xmr-stak-dep.zip & 7z x xmr-stak-dep.zip -o"c:\xmrig-dep" -y > nul)
+cache:
+    - c:\xmrig-dep
+build_script:
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsMSBuildCmd.bat"
+  - cd c:\xmrig
+  - mkdir build
+  - cd build
+  - set CMAKE_PREFIX_PATH=C:\xmrig-dep\hwloc;C:\xmrig-dep\libmicrohttpd;C:\xmrig-dep\openssl;
+  - cmake -G "Visual Studio 15 2017 Win64" -T v141,host=x64 ..
+  - msbuild aeon-stak-cpu.sln /p:Configuration=Release
+
+test_script:
+  - cd c:\xmrig\build\bin\Release
+  - copy ..\..\src\config.json .
+  - tree /f
+  
+artifacts:
+  - path: build\bin\Release
+    name: xmrig-cpu-win
+#  - xmrig.exe
