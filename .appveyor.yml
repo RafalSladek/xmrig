@@ -20,7 +20,7 @@ build_script:
   - cd %clone_folder%
   - mkdir build
   - cd build
-  - cmake .. -G "Visual Studio 15 2017 Win64" -DUV_INCLUDE_DIR=c:\xmrig-dep\msvc2017\libuv\%platform%\include -DUV_LIBRARY=c:\xmrig-dep\msvc2017\libuv\%platform%\lib\libuv.lib
+  - cmake .. -G "Visual Studio 15 2017 Win64" -DUV_INCLUDE_DIR=c:\xmrig-dep\msvc2017\libuv\%platform%\include -DUV_LIBRARY=c:\xmrig-dep\msvc2017\libuv\%platform%\lib\libuv.lib -DMHD_INCLUDE_DIR=c:\xmrig-dep\msvc2017\libmicrohttpd\%platform%\include -DMHD_LIBRARY=c:\xmrig-dep\msvc2017\libmicrohttpd\%platform%\lib\libuv.lib
   - msbuild xmrig.sln /p:Configuration=Release
 
 test_script:
