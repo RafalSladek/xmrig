@@ -1,3 +1,25 @@
+# v2.4.0
+ - Added [HTTP API](https://github.com/xmrig/xmrig/wiki/API).
+ - Added comments support in config file.
+ - libjansson replaced to rapidjson.
+ - [#98](https://github.com/xmrig/xmrig/issues/98) Ignore `keepalive` option with minergate.com and nicehash.com.
+ - [#101](https://github.com/xmrig/xmrig/issues/101) Fixed MSVC 2017 (15.3) compile time version detection.
+ - [#108](https://github.com/xmrig/xmrig/issues/108) Silently ignore invalid values for `donate-level` option.
+ - [#111](https://github.com/xmrig/xmrig/issues/111) Fixed build without AEON support.
+ 
+# v2.3.1
+- [#68](https://github.com/xmrig/xmrig/issues/68) Fixed compatibility with Docker containers, was nothing print on console.
+
+# v2.3.0
+- Added `--cpu-priority` option (0 idle, 2 normal to 5 highest).
+- Added `--user-agent` option, to set custom user-agent string for pool. For example `cpuminer-multi/0.1`.
+- Added `--no-huge-pages` option, to disable huge pages support.
+- [#62](https://github.com/xmrig/xmrig/issues/62) Don't send the login to the dev pool.
+- Force reconnect if pool block miner IP address. helps switch to backup pool.
+- Fixed: failed open default config file if path contains non English characters.
+- Fixed: error occurred if try use unavailable stdin or stdout, regression since version 2.2.0.
+- Fixed: message about huge pages support successfully enabled on Windows was not shown in release builds.
+
 # v2.2.1
 - Fixed [terminal issues](https://github.com/xmrig/xmrig-proxy/issues/2#issuecomment-319914085) after exit on Linux and OS X.
 

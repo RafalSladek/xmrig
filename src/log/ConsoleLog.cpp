@@ -23,6 +23,7 @@
 
 
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -38,10 +39,16 @@
 
 
 ConsoleLog::ConsoleLog(bool colors) :
-    m_colors(colors)
+    m_colors(colors),
+    m_stream(nullptr)
 {
-    uv_tty_init(uv_default_loop(), &m_tty, 1, 0);
+    if (uv_tty_init(uv_default_loop(), &m_tty, 1, 0) < 0) {
+        return;
+    }
+
     uv_tty_set_mode(&m_tty, UV_TTY_MODE_NORMAL);
+    m_uvBuf.base = m_buf;
+    m_stream     = reinterpret_cast<uv_stream_t*>(&m_tty);
 
 #   ifdef WIN32
     HANDLE handle = GetStdHandle(STD_INPUT_HANDLE);
@@ -58,6 +65,10 @@ ConsoleLog::ConsoleLog(bool colors) :
 
 void ConsoleLog::message(int level, const char* fmt, va_list args)
 {
+    if (!isWritable()) {
+        return;
+    }
+
     time_t now = time(nullptr);
     tm stime;
 
@@ -92,50 +103,51 @@ void ConsoleLog::message(int level, const char* fmt, va_list args)
         }
     }
 
-    const size_t len = 64 + strlen(fmt) + 2;
-    char *buf = new char[len];
-
-    sprintf(buf, "[%d-%02d-%02d %02d:%02d:%02d]%s %s%s\n",
-            stime.tm_year + 1900,
-            stime.tm_mon + 1,
-            stime.tm_mday,
-            stime.tm_hour,
-            stime.tm_min,
-            stime.tm_sec,
-            m_colors ? color : "",
-            fmt,
-            m_colors ? Log::kCL_N : ""
+    snprintf(m_fmt, sizeof(m_fmt) - 1, "[%d-%02d-%02d %02d:%02d:%02d]%s %s%s\n",
+             stime.tm_year + 1900,
+             stime.tm_mon + 1,
+             stime.tm_mday,
+             stime.tm_hour,
+             stime.tm_min,
+             stime.tm_sec,
+             m_colors ? color : "",
+             fmt,
+             m_colors ? Log::kCL_N : ""
         );
 
-    print(buf, args);
+    print(args);
 }
 
 
 void ConsoleLog::text(const char* fmt, va_list args)
 {
-    const int len = 64 + strlen(fmt) + 2;
-    char *buf = new char[len];
+    if (!isWritable()) {
+        return;
+    }
 
-    sprintf(buf, "%s%s\n", fmt, m_colors ? Log::kCL_N : "");
+    snprintf(m_fmt, sizeof(m_fmt) - 1, "%s%s\n", fmt, m_colors ? Log::kCL_N : "");
 
-    print(buf, args);
+    print(args);
 }
 
 
-void ConsoleLog::print(char *fmt, va_list args)
+bool ConsoleLog::isWritable() const
 {
-    vsnprintf(m_buf, sizeof(m_buf) - 1, fmt, args);
-    delete [] fmt;
+    if (!m_stream || uv_is_writable(m_stream) != 1) {
+        return false;
+    }
 
-    uv_buf_t buf;
-    buf.base = strdup(m_buf);
-    buf.len  = strlen(buf.base);
+    const uv_handle_type type = uv_guess_handle(1);
+    return type == UV_TTY || type == UV_NAMED_PIPE;
+}
 
-    uv_write_t *req = new uv_write_t;
-    req->data = buf.base;
 
-    uv_write(req, reinterpret_cast<uv_stream_t*>(&m_tty), &buf, 1, [](uv_write_t *req, int status) {
-        free(req->data);
-        delete req;
-    });
+void ConsoleLog::print(va_list args)
+{
+    m_uvBuf.len = vsnprintf(m_buf, sizeof(m_buf) - 1, m_fmt, args);
+    if (m_uvBuf.len <= 0) {
+        return;
+    }
+
+    uv_try_write(m_stream, &m_uvBuf, 1);
 }

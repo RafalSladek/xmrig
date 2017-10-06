@@ -74,6 +74,14 @@ void FailoverStrategy::stop()
 }
 
 
+void FailoverStrategy::tick(uint64_t now)
+{
+    for (Client *client : m_pools) {
+        client->tick(now);
+    }
+}
+
+
 void FailoverStrategy::onClose(Client *client, int failures)
 {
     if (failures == -1) {
@@ -124,15 +132,15 @@ void FailoverStrategy::onLoginSuccess(Client *client)
 }
 
 
-void FailoverStrategy::onResultAccepted(Client *client, int64_t seq, uint32_t diff, uint64_t ms, const char *error)
+void FailoverStrategy::onResultAccepted(Client *client, const SubmitResult &result, const char *error)
 {
-    m_listener->onResultAccepted(client, seq, diff, ms, error);
+    m_listener->onResultAccepted(client, result, error);
 }
 
 
 void FailoverStrategy::add(const Url *url, const char *agent)
 {
-    Client *client = new Client(m_pools.size(), agent, this);
+    Client *client = new Client((int) m_pools.size(), agent, this);
     client->setUrl(url);
     client->setRetryPause(Options::i()->retryPause() * 1000);
 

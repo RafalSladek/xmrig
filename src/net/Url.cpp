@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 #include "net/Url.h"
@@ -87,12 +88,6 @@ Url::~Url()
 }
 
 
-bool Url::isNicehash() const
-{
-    return isValid() && (m_nicehash || strstr(m_host, ".nicehash.com"));
-}
-
-
 bool Url::parse(const char *url)
 {
     const char *p = strstr(url, "://");
@@ -121,7 +116,7 @@ bool Url::parse(const char *url)
     memcpy(m_host, base, size - 1);
     m_host[size - 1] = '\0';
 
-    m_port = strtol(port, nullptr, 10);
+    m_port = (uint16_t) strtol(port, nullptr, 10);
     return true;
 }
 
@@ -141,6 +136,23 @@ bool Url::setUserpass(const char *userpass)
     m_password = strdup(p + 1);
 
     return true;
+}
+
+
+void Url::applyExceptions()
+{
+    if (!isValid()) {
+        return;
+    }
+
+    if (strstr(m_host, ".nicehash.com")) {
+        m_keepAlive = false;
+        m_nicehash  = true;
+    }
+
+    if (strstr(m_host, ".minergate.com")) {
+        m_keepAlive = false;
+    }
 }
 
 

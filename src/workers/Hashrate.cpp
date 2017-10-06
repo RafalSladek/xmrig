@@ -127,8 +127,8 @@ double Hashrate::calc(size_t threadId, size_t ms) const
     }
 
     double hashes, time;
-    hashes = lastestHashCnt - earliestHashCount;
-    time   = lastestStamp - earliestStamp;
+    hashes = (double) lastestHashCnt - earliestHashCount;
+    time   = (double) lastestStamp - earliestStamp;
     time  /= 1000.0;
 
     return hashes / time;
@@ -153,10 +153,10 @@ void Hashrate::print()
     char num4[8];
 
     LOG_INFO(Options::i()->colors() ? "\x1B[01;37mspeed\x1B[0m 2.5s/60s/15m \x1B[01;36m%s \x1B[22;36m%s %s \x1B[01;36mH/s\x1B[0m max: \x1B[01;36m%s H/s" : "speed 2.5s/60s/15m %s %s %s H/s max: %s H/s",
-             format(calc(2500),   num1, sizeof(num1)),
-             format(calc(60000),  num2, sizeof(num2)),
-             format(calc(900000), num3, sizeof(num3)),
-             format(m_highest,    num4, sizeof(num4))
+             format(calc(ShortInterval),  num1, sizeof(num1)),
+             format(calc(MediumInterval), num2, sizeof(num2)),
+             format(calc(LargeInterval),  num3, sizeof(num3)),
+             format(m_highest,            num4, sizeof(num4))
              );
 }
 
@@ -169,7 +169,7 @@ void Hashrate::stop()
 
 void Hashrate::updateHighest()
 {
-   double highest = calc(2500);
+   double highest = calc(ShortInterval);
    if (std::isnormal(highest) && highest > m_highest) {
        m_highest = highest;
    }
